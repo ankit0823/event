@@ -32,7 +32,21 @@ module.exports.getEvents = async (req, res, next) => {
 };
 
 // Update event by ID
-module.exports.updateEvent = async (req, res, next) => {
+// ✅ Fix: Fetch a single event by ID
+module.exports.getEventById = async (req, res) => {
+    try {
+        const event = await eventService.getEventById(req.params.id);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+        res.status(200).json({ event });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch event" });
+    }
+};
+
+// ✅ Fix: Update an event
+module.exports.updateEvent = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -54,11 +68,15 @@ module.exports.updateEvent = async (req, res, next) => {
     }
 };
 
-module.exports.deleteEvent = async (req, res) => {
-    const eventId = req.params.id;
+
+module.exports.deleteEvent = async (req, res) => { 
+    const eventId = req.params.eventId; // ✅ Sahi // FIXED: eventId use karo
+    console.log("Received Event ID:", eventId); // Debugging
+    console.log("DELETE request received for event ID:", req.params);
 
     try {
         const deletedEvent = await eventService.deleteEvent(eventId);
+        console.log("Deleted Event:", deletedEvent); // Debugging
 
         if (!deletedEvent) {
             return res.status(404).json({ error: "Event not found" });
@@ -66,6 +84,21 @@ module.exports.deleteEvent = async (req, res) => {
 
         res.status(200).json({ message: "Event deleted successfully", deletedEvent });
     } catch (error) {
+        console.error("Error deleting event:", error);
         res.status(500).json({ error: error.message });
     }
 };
+
+module.exports.getUsersByEvent = async (req, res) => {
+    const { eventId } = req.params;
+
+    try {
+        const users = await eventService.getUsersByEvent(eventId);
+        res.status(200).json({ attendees: users });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+
+

@@ -18,6 +18,13 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+
+    attendees: {
+        type: [mongoose.Schema.Types.ObjectId], // Store user IDs
+        ref: 'User',
+        default: []
+    }
+    
     // status: {
     //     type: String,
     //     enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],
@@ -29,5 +36,5 @@ const eventSchema = new mongoose.Schema({
     // }
 });
 
-const eventModel = mongoose.model('event', eventSchema);
+const eventModel = mongoose.model('Event', eventSchema);
 module.exports = eventModel;
